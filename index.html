@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Seoul Trip 2026 🍁</title>
+  <style>
+    :root {
+      --bg: #FDFBF7;
+      --card-bg: #FFFFFF;
+      --primary: #A24838; /* 楓紅色 */
+      --primary-soft: #F9ECE9;
+      --accent: #D9822B;  /* 暖杏金 */
+      --text: #2C2825;
+      --text-muted: #7E766F;
+      --border: #EFE9E0;
+      --tag-bg: #F4EFEB;
+      --shadow: 0 4px 18px rgba(162, 72, 56, 0.06);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang TC", "Noto Sans TC", sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: calc(40px + env(safe-area-inset-bottom));
+    }
+
+    /* 頂部導航列 */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(253, 251, 247, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 16px 8px;
+    }
+
+    .header-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+
+    .header-title h1 {
+      font-size: 1.18rem;
+      font-weight: 700;
+      color: var(--primary);
+      letter-spacing: -0.3px;
+    }
+
+    .header-title span {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* 吸頂滑動 Tab */
+    .tab-bar {
+      display: flex;
+      overflow-x: auto;
+      gap: 8px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding-bottom: 4px;
+    }
+    .tab-bar::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      flex: 0 0 auto;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #FFF;
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(162, 72, 56, 0.25);
+    }
+
+    /* 主要容器 */
+    main {
+      padding: 16px;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .tab-content {
+      display: none;
+      animation: fadeIn 0.25s ease forwards;
+    }
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 日期摘要標題卡 */
+    .day-header {
+      background: linear-gradient(135deg, var(--primary-soft) 0%, #FFF 100%);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+    .day-header .date-badge {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .day-header h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      line-height: 1.35;
+    }
+
+    /* 行程項目卡片 */
+    .timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 14px 15px;
+      position: relative;
+    }
+
+    .card.highlight {
+      border-left: 4px solid var(--primary);
+    }
+
+    .card.accent {
+      border-left: 4px solid var(--accent);
+    }
+
+    .time-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: var(--primary-soft);
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .card h3 {
+      font-size: 0.98rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 6px;
+      line-height: 1.3;
+    }
+
+    .card p {
+      font-size: 0.86rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    /* 地址與導航快捷區 */
+    .address-box {
+      background: #FAF8F5;
+      border: 1px dashed var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      font-size: 0.8rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .address-text {
+      color: #4A423D;
+      font-family: inherit;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .btn-copy {
+      flex: 0 0 auto;
+      border: none;
+      background: #ECE5DC;
+      color: #4A423D;
+      font-size: 0.72rem;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-copy:active {
+      background: var(--primary);
+      color: #FFF;
+    }
+
+    .links-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .link-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--tag-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .link-chip.naver {
+      color: #03C75A;
+      background: #F0FAF3;
+      border-color: #D3F3DE;
+    }
+    .link-chip.google {
+      color: #1A73E8;
+      background: #F0F6FE;
+      border-color: #D5E5FD;
+    }
+
+    /* 10/30 雙模式切換器 */
+    .switch-panel {
+      background: #F5EFEB;
+      border-radius: 12px;
+      padding: 4px;
+      display: flex;
+      margin-bottom: 14px;
+      gap: 4px;
+    }
+    .switch-btn {
+      flex: 1;
+      padding: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      border: none;
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .switch-btn.active {
+      background: #FFF;
+      color: var(--primary);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+    }
+
+    /* 匯率換算器卡片 */
+    .tool-card {
+      background: #FFF;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .tool-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .tool-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .rate-setting {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .rate-input {
+      width: 60px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: center;
+      background: #FAF8F5;
+    }
+    .rate-input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background: #FFF;
+    }
+
+    .converter-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .input-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .input-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--text);
+      width: 100%;
+      background: #FAF8F5;
+    }
+    .input-box:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: #FFF;
+    }
+
+    /* 清單打勾樣式 */
+    .checklist {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      background: #FAF8F5;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+
+    .check-item input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--primary);
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .check-item.done span {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    /* Toast 提示條 */
+    #toast {
+      position: fixed;
+      bottom: calc(24px + env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: rgba(44, 40, 37, 0.92);
+      color: #FFF;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      transition: transform 0.25s ease;
+      z-index: 999;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-title">
+      <h1>首爾秋季漫遊 🍁</h1>
+      <span>10/29 - 11/03 (6D5N)</span>
+    </div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('d1')">D1 10/29</button>
+      <button class="tab-btn" onclick="switchTab('d2')">D2 10/30</button>
+      <button class="tab-btn" onclick="switchTab('d3')">D3 10/31</button>
+      <button class="tab-btn" onclick="switchTab('d4')">D4 11/01</button>
+      <button class="tab-btn" onclick="switchTab('d5')">D5 11/02</button>
+      <button class="tab-btn" onclick="switchTab('d6')">D6 11/03</button>
+      <button class="tab-btn" onclick="switchTab('tools')">工具箱 🧰</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- DAY 1 -->
+    <div id="d1" class="tab-content active">
+      <div class="day-header">
+        <span class="date-badge">Day 1 ・ 10/29 (四)</span>
+        <h2>抵達首爾・入住朋友家</h2>
+      </div>
+      <div class="timeline">
+        <div class="card">
+          <div class="time-tag">✈️ 14:00 - 17:25</div>
+          <h3>松山 TSA ✈ 金浦 GMP (ZE888)</h3>
+          <p>搭乘易斯達航空，抵達後入關速度較仁川快，預計 18:10 完成領取行李與出關。</p>
+        </div>
+
+        <div class="card highlight">
+          <div class="time-tag">🚇 18:30 - 19:15</div>
+          <h3>直達永登浦區廳・朋友家</h3>
+          <p>於金浦機場搭乘地鐵 5 號線直達永登浦區廳站（約 20 分鐘，免轉乘），步行放行李。</p>
+          <div class="address-box">
+            <span class="address-text" id="addr-friend">서울특별시 영등포구 당산로33길 5</span>
+            <button class="btn-copy" onclick="copyText('서울특별시 영등포구 당산로33길 5')">複製地址</button>
+          </div>
+          <div class="links-row">
+            <a class="link-chip naver" href="https://map.naver.com/p/search/%EC%84%9C%EC%9A%B8%ED%8A%B9%EB%B3%84%EC%8B%9C%20%EC%98%81%EB%93%B1%ED%8F%AC%EA%B5%AC%20%EB%8B%B9%EC%82%B0%EB%A1%9C33%EA%B8%B8%205" target="_blank">Naver Map</a>
+            <a class="link-chip google" href="https://www.google.com/maps/search/?api=1&query=5+Dangsan-ro+33-gil+Yeongdeungpo-gu+Seoul" target="_blank">Google Maps</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="time-tag">🍽️ 19:30 - 晚間</div>
+          <h3>堂山／文來洞 烤肉聚餐</h3>
+          <p>與朋友在堂山或文來洞文創村享用晚餐，早點休息充電。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 2 -->
+    <div id="d2" class="tab-content">
+      <div class="day-header">
+        <span class="date-badge">Day 2 ・ 10/30 (五)</span>
+        <h2>德壽宮晨拍 ➔ 聖水逛街 ➔ 晚間彈性</h2>
+      </div>
+
+      <div class="timeline">
+        <div class="card">
+          <div class="time-tag">🏨 09:00 - 09:30</div>
+          <h3>GLAD Mapo 寄放行李</h3>
+          <p>從永登浦區廳搭 5 號線直達孔德站共構的 GLAD Mapo 櫃台寄放行李。</p>
+          <div class="address-box">
+            <span class="address-text">글래드 마포 (서울 마포구 마포대로 92)</span>
+            <button class="btn-copy" onclick="copyText('서울 마포구 마포대로 92')">複製</button>
+          </div>
+        </div>
+
+        <div class="card accent">
+          <div class="time-tag">📷 09:45 - 12:00</div>
+          <h3>德壽宮＋石造殿晨拍＋石牆路</h3>
+          <p>09:00 開園人少光線好，拍攝新古典西洋白色石造殿與秋季樹景，順走宮外石牆路。</p>
+          <div class="links-row">
+            <a class="link-chip naver" href="https://map.naver.com/p/search/%EB%8D%95%EC%88%98%EA%B3%B5" target="_blank">Naver Map</a>
+            <a class="link-chip google" href="https://www.google.com/maps/search/?api=1&query=Deoksugung" target="_blank">Google Maps</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="time-tag">🛍️ 12:30 - 17:30</div>
+          <h3>聖水洞逛街＋拍 Photoism</h3>
+          <p>從市廳搭 2 號線直達聖水站。逛 Tamburins、Ader Error，挑選質感私服與鞋子。順道在街邊拍 <b>Photoism 人生四格</b>，到 Olive Young 逛 BANILA CO 專櫃。</p>
+          <div class="links-row">
+            <a class="link-chip naver" href="https://map.naver.com/p/search/%ED%8F%AC%ED%86%A0%EC%9D%B4%EC%A6%98%20%EC%84%B1%EC%88%98" target="_blank">Photoism 聖水</a>
+          </div>
+        </div>
+
+        <!-- 晚間雙模式切換 -->
+        <div class="switch-panel">
+          <button class="switch-btn active" onclick="togglePlan('b')">方案 B：無票回飯店看直播</button>
+          <button class="switch-btn" onclick="togglePlan('a')">方案 A：有票現場整裝</button>
+        </div>
+
+        <div id="plan-b-card" class="card highlight">
+          <div class="time-tag">🛋️ 晚間 (方案 B)</div>
+          <h3>外帶孔德煎餅／炸雞・回飯店看線上直播</h3>
+          <p>18:00 從聖水回孔德站 Check-in 入住，外帶麻浦煎餅一條街的小吃或橋村炸雞回房間，舒服洗澡連 Wi-Fi 專心看直播！</p>
+        </div>
+
+        <div id="plan-a-card" class="card highlight" style="display:none;">
+          <div class="time-tag">🎫 晚間 (方案 A)</div>
+          <h3>有購得票券・現場備戰</h3>
+          <p>下午 17:00 前提早離開聖水回飯店整裝，確認隔天接駁動線與隨身物品。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 3 -->
+    <div id="d3" class="tab-content">
+      <div class="day-header">
+        <span class="date-badge">Day 3 ・ 10/31 (六)</span>
+        <h2>INSPIRE Arena 演唱會日 🎤</h2>
+      </div>
+      <div class="timeline">
+        <div class="card">
+          <div class="time-tag">☕ 10:00 - 12:30</div>
+          <h3>早午餐充電時光</h3>
+          <p>在 GLAD Mapo 睡到自然醒，於孔德站周邊享用早午餐或咖啡，為晚間演唱會養足體力。</p>
+        </div>
+
+        <div class="card highlight">
+          <div class="time-tag">🚌 13:30 - 午後</div>
+          <h3>搭乘專屬接駁車 ➔ 仁川永宗島</h3>
+          <p>於預約地點搭乘直達專車前往 INSPIRE Arena。場館大廳有沉浸式數位環景可拍照打卡。</p>
+          <div class="address-box">
+            <span class="address-text">인스파이어 아레나 (인천 중구 영종해안남로321번길 186)</span>
+            <button class="btn-copy" onclick="copyText('인천 중구 영종해안남로321번길 186')">複製</button>
+          </div>
+          <div class="links-row">
+            <a class="link-chip naver" href="https://map.naver.com/p/search/%EC%9D%B8%EC%8A%A4%ED%8C%8C%EC%9D%B4%EC%96%B4%20%EC%95%84%EB%A0%88%EB%82%98" target="_blank">Naver Map</a>
+          </div>
+        </div>
+
+        <div class="card accent">
+          <div class="time-tag">🎶 18:00 - 21:30</div>
+          <h3>CONCERT TIME ✨</h3>
+          <p>全心投入演唱會現場震撼！</p>
+        </div>
+
+        <div class="card">
+          <div class="time-tag">🌙 22:00 - 深夜</div>
+          <h3>搭乘返程接駁專車直達回孔德</h3>
+          <p>免去擠深夜機場鐵路的疲憊，直接搭接駁專車回到 GLAD Mapo 舒適休息。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 4 -->
+    <div id="d4" class="tab-content">
+      <div class="day-header">
+        <span class="date-badge">Day 4 ・ 11/01 (日)</span>
+        <h2>昌慶宮幽靜取景 ➔ 明隆芭尼蘭朝聖</h2>
+      </div>
+      <div class="timeline">
+        <div class="card">
+          <div class="time-tag">🧳 11:00 - 12:00</div>
+          <h3>退房・行李放回朋友家</h3>
+          <p>於 GLAD Mapo 退房，搭地鐵 5 號線將行李帶回永登浦區廳朋友家放置。</p>
+        </div>
+
+        <div class="card accent">
+          <div class="time-tag">📷 13:30 - 16:00</div>
+          <h3>昌慶宮 春塘池楓紅＋純白大溫室</h3>
+          <p>週日避開休館！重點拍攝春塘池池畔濃密紅楓倒影，以及 1909 年建立的復古純白鋼骨玻璃大溫室，人少清幽無銀杏落果干擾。</p>
+          <div class="links-row">
+            <a class="link-chip naver" href="https://map.naver.com/p/search/%EC%B0%BD%EA%B2%BD%EA%B6%81" target="_blank">Naver Map</a>
+            <a class="link-chip google" href="https://www.google.com/maps/search/?api=1&query=Changgyeonggung" target="_blank">Google Maps</a>
+          </div>
+        </div>
+
+        <div class="card highlight">
+          <div class="time-tag">💄 16:30 - 19:00</div>
+          <h3>明洞 BANILA CO 旗艦店朝聖</h3>
+          <p>從昌慶宮轉往明洞，走訪芭尼蘭旗艦門市拍代言人視覺形象，購入 Clean it Zero 卸妝膏與淨漢同款底妝禮盒。</p>
+          <div class="address-box">
+            <span class="address-text">바닐라코 명동점 (서울 중구 명동8길 19)</span>
+            <button class="btn-copy" onclick="copyText('서울 중구 명동8길 19')">複製</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="time-tag">🍲 19:30 - 晚間</div>
+          <h3>明洞／乙支路 暖心晚餐</h3>
+          <p>享用一隻雞或雪濃湯，餐後搭乘地鐵回堂山休息。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 5 -->
+    <div id="d5" class="tab-content">
+      <div class="day-header">
+        <span class="date-badge">Day 5 ・ 11/02 (一)</span>
+        <h2>漢南洞同款朝聖 ➔ 樂天超市大採買</h2>
+      </div>
+      <div class="timeline">
+        <div class="card highlight">
+          <div class="time-tag">🌸 11:00 - 13:30</div>
+          <h3>Mardi Mercredi 漢南旗艦聚落</h3>
+          <p>搭乘 6 號線至漢江鎮站 3 號出口。旗艦聚落包含服飾館、鞋履配件館，試穿挑選經典花卉針織外套、衛衣與秋冬私服單品。</p>
+          <div class="address-box">
+            <span class="address-text">마르디 메크르디 한남 (서울 용산구 이태원로54길 58)</span>
+            <button class="btn-copy" onclick="copyText('서울 용산구 이태원로54길 58')">複製</button>
+          </div>
+          <div class="links-row">
+            <a class="link-chip naver" href="https://map.naver.com/p/search/%EB%A7%88%EB%A5%B4%EB%94%94%EB%A9%94%ED%81%AC%EB%A5%B4%EB%94%94%20%ED%95%9C%EB%82%A8" target="_blank">Naver Map</a>
+          </div>
+        </div>
+
+        <div class="card highlight">
+          <div class="time-tag">🌿 13:30 - 15:00</div>
+          <h3>SW19 漢南旗艦店（步行 5 分鐘）</h3>
+          <p>步行前往 SW19 靜謐香氛空間，親自試聞 6am、noon、3pm、9pm、midnight 全系列，入手淨漢同款香水與香氛護手霜。</p>
+          <div class="address-box">
+            <span class="address-text">SW19 한남 (서울 용산구 대사관로5길 28)</span>
+            <button class="btn-copy" onclick="copyText('서울 용산구 대사관로5길 28')">複製</button>
+          </div>
+          <div class="links-row">
+            <a class="link-chip naver" href="https://map.naver.com/p/search/SW19%20%ED%95%9C%EB%82%A8" target="_blank">Naver Map</a>
+          </div>
+        </div>
+
+        <div class="card accent">
+          <div class="time-tag">🛒 16:00 - 19:30</div>
+          <h3>首爾站樂天超市 (ZETTAPLEX) 採買伴手禮</h3>
+          <p><b>✨今日確定正常營業無公休！</b> 零食、泡麵、伴手禮大採購，現場櫃台即時退稅免手續，採買完搭計程車或地鐵直接搬回朋友家！</p>
+          <div class="links-row">
+            <a class="link-chip naver" href="https://map.naver.com/p/search/%EB%A1%AF%EB%8D%B0%EB%A7%88%ED%8A%B8%20%EC%A0%9C%ED%83%80%ED%94%8C%EB%A0%89%EC%8A%A4%20%EC%84%9C%EC%9A%B8%EC%97%AD%EC%A0%90" target="_blank">Naver Map</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="time-tag">📦 20:00 - 深夜</div>
+          <h3>整理戰利品・打包行李</h3>
+          <p>回到朋友家確認退稅單據、機票資訊，輕鬆整理行李箱。</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAY 6 -->
+    <div id="d6" class="tab-content">
+      <div class="day-header">
+        <span class="date-badge">Day 6 ・ 11/03 (二)</span>
+        <h2>順順返台 ✈️</h2>
+      </div>
+      <div class="timeline">
+        <div class="card">
+          <div class="time-tag">🚇 08:30 - 09:10</div>
+          <h3>永登浦區廳 ➔ 金浦機場</h3>
+          <p>搭乘地鐵 5 號線直達金浦機場站（車程約 25 分鐘，免換線轉乘）。</p>
+        </div>
+
+        <div class="card highlight">
+          <div class="time-tag">✈️ 11:15 - 12:55</div>
+          <h3>金浦 GMP ✈ 松山 TSA (ZE887)</h3>
+          <p>搭乘易斯達航空順利抵達台北松山機場，平安返家！</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOOLS TAB -->
+    <div id="tools" class="tab-content">
+      <!-- 匯率自訂與換算器 -->
+      <div class="tool-card">
+        <div class="tool-header">
+          <div class="tool-title">💱 雙向匯率即時換算</div>
+          <div class="rate-setting">
+            <span>1 TWD =</span>
+            <input type="number" step="0.1" id="custom-rate" class="rate-input" value="41.5" oninput="updateRate()">
+            <span>KRW</span>
+          </div>
+        </div>
+        <div class="converter-grid">
+          <div class="input-group">
+            <label for="krw-input">韓元 (KRW ₩)</label>
+            <input type="number" id="krw-input" class="input-box" placeholder="例如 50000" oninput="convertFromKrw()">
+          </div>
+          <div class="input-group">
+            <label for="twd-input">台幣 (TWD $)</label>
+            <input type="number" id="twd-input" class="input-box" placeholder="例如 1200" oninput="convertFromTwd()">
+          </div>
+        </div>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">💡 可點選上方數值直接修改匯率，系統會自動儲存在手機中。</p>
+      </div>
+
+      <!-- 代言同款 Check list -->
+      <div class="tool-card">
+        <div class="tool-title" style="margin-bottom:12px;">🌟 代言同款朝聖清單</div>
+        <ul class="checklist">
+          <li class="check-item" onclick="toggleCheck(this)">
+            <input type="checkbox">
+            <span>Mardi Mercredi 經典刺繡針織衫／衛衣</span>
+          </li>
+          <li class="check-item" onclick="toggleCheck(this)">
+            <input type="checkbox">
+            <span>SW19 漢南旗艦店（試聞 noon / 3pm / 9pm）</span>
+          </li>
+          <li class="check-item" onclick="toggleCheck(this)">
+            <input type="checkbox">
+            <span>BANILA CO Clean it Zero 卸妝膏</span>
+          </li>
+          <li class="check-item" onclick="toggleCheck(this)">
+            <input type="checkbox">
+            <span>Photoism 拍人生四格照片留念</span>
+          </li>
+          <li class="check-item" onclick="toggleCheck(this)">
+            <input type="checkbox">
+            <span>德壽宮白色石造殿＋石牆路取景</span>
+          </li>
+          <li class="check-item" onclick="toggleCheck(this)">
+            <input type="checkbox">
+            <span>昌慶宮春塘池紅楓倒影＋純白大溫室</span>
+          </li>
+          <li class="check-item" onclick="toggleCheck(this)">
+            <input type="checkbox">
+            <span>樂天超市首爾站店買零食伴手禮並即時退稅</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- 緊急資訊 -->
+      <div class="tool-card">
+        <div class="tool-title" style="margin-bottom:8px;">🚨 緊急常用資訊</div>
+        <p style="font-size:0.84rem; margin-bottom:4px;"><b>首爾報警：</b>112 ｜ <b>救護車：</b>119</p>
+        <p style="font-size:0.84rem; margin-bottom:4px;"><b>韓國旅遊諮詢熱線：</b>1330（支援中文）</p>
+        <p style="font-size:0.84rem;"><b>駐韓國台北代表部：</b>+82-2-6329-6000</p>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast">已複製到剪貼簿！</div>
+
+  <script>
+    // Tab 切換
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      const target = document.getElementById(tabId);
+      if (target) target.classList.add('active');
+
+      const tabs = ['d1', 'd2', 'd3', 'd4', 'd5', 'd6', 'tools'];
+      const index = tabs.indexOf(tabId);
+      if (index !== -1) {
+        document.querySelectorAll('.tab-btn')[index].classList.add('active');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 複製文字與提示
+    function copyText(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => showToast());
+      } else {
+        const input = document.createElement('textarea');
+        input.value = text;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        showToast();
+      }
+    }
+
+    function showToast() {
+      const toast = document.getElementById('toast');
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+
+    // 10/30 方案切換
+    function togglePlan(plan) {
+      const btnA = document.querySelectorAll('.switch-btn')[1];
+      const btnB = document.querySelectorAll('.switch-btn')[0];
+      const cardA = document.getElementById('plan-a-card');
+      const cardB = document.getElementById('plan-b-card');
+
+      if (plan === 'a') {
+        btnA.classList.add('active');
+        btnB.classList.remove('active');
+        cardA.style.display = 'block';
+        cardB.style.display = 'none';
+      } else {
+        btnB.classList.add('active');
+        btnA.classList.remove('active');
+        cardB.style.display = 'block';
+        cardA.style.display = 'none';
+      }
+    }
+
+    // 匯率自訂與記憶功能
+    let currentRate = 41.5;
+
+    function initRate() {
+      const savedRate = localStorage.getItem('seoul_trip_rate');
+      if (savedRate) {
+        currentRate = parseFloat(savedRate);
+        document.getElementById('custom-rate').value = currentRate;
+      }
+    }
+
+    function updateRate() {
+      const val = parseFloat(document.getElementById('custom-rate').value);
+      if (!isNaN(val) && val > 0) {
+        currentRate = val;
+        localStorage.setItem('seoul_trip_rate', currentRate);
+        // 如果韓元欄位有值，即時更新台幣
+        if (document.getElementById('krw-input').value) {
+          convertFromKrw();
+        }
+      }
+    }
+
+    function convertFromKrw() {
+      const krw = parseFloat(document.getElementById('krw-input').value);
+      const twdInput = document.getElementById('twd-input');
+      if (!isNaN(krw)) {
+        twdInput.value = Math.round(krw / currentRate);
+      } else {
+        twdInput.value = '';
+      }
+    }
+
+    function convertFromTwd() {
+      const twd = parseFloat(document.getElementById('twd-input').value);
+      const krwInput = document.getElementById('krw-input');
+      if (!isNaN(twd)) {
+        krwInput.value = Math.round(twd * currentRate);
+      } else {
+        krwInput.value = '';
+      }
+    }
+
+    // 清單打勾
+    function toggleCheck(el) {
+      const checkbox = el.querySelector('input[type="checkbox"]');
+      if (event.target !== checkbox) {
+        checkbox.checked = !checkbox.checked;
+      }
+      if (checkbox.checked) {
+        el.classList.add('done');
+      } else {
+        el.classList.remove('done');
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', initRate);
+  </script>
+</body>
+</html>
